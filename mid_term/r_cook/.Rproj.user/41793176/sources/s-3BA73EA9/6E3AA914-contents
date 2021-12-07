@@ -1,0 +1,82 @@
+---
+title: "Parametrik olmayan istatistiksel yöntemler ödevi (6)"
+author: "Ramazan Erduran, İlkay Şafak Baytar"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(stats)
+library(tidyverse)
+library(rstatix)
+library(ggplot2)
+library(writexl)
+
+iris_setosa <- read_excel("C:/Users/lenovo/Documents/GitHub/Nonpar/iris_datasets/iris_setosa.xlsx")
+
+```
+# 7:
+## Verilerin açıklanması ve düzenlenmesi:
+
+  Ödevimizin 2. sekmesinde elde ettiğimiz bağımlı **Iris** veri setinden incelemek üzere 3 değişken seçildi ve bu değişkenler arası fark olup olmadığna bakıldı:  
+  (**Sepal uzunluğu**, **Sepal kalınlığı** ve **Petal hacmi**).  
+Iris veri setimize **Friedmann** uygulanabilmesi için doğru forma getirildi.
+
+```{r setosa, echo=T}
+iris_setosa <- iris_setosa %>%
+  gather(key = "specs", value = "value", sepal_width,sepal_length, petal_volume) %>%
+  convert_as_factor(id, specs)
+
+ggplot(iris_setosa, aes(specs, value, color= specs))+ geom_boxplot()
+```
+
+### Hipotezlerin kurulması ve testin yapılması:
+  
+  Boxplot grafiğini gördüğümüz değişkenlerimizin hipotez testleri incelendi.  
+  Bu aşamada öncekilerde de olduğu gibi hipotezlerimizi kurup bu hipotezlere ilişkin **Friedmann** Testi uygulandı:  
+  H0: D~i~ = 0 (Değişkenler arası fark yoktur.)  
+  H1: D~i~ $\neq$ 0 (Değişkenler arası fark vardır.)  
+  Alpha = 0.05  
+için "**Friedmann**" %5 yanılma düzeyiyle uygulanarak hipotezler test edildi:
+
+```{r friedmann, echo=FALSE}
+iris_setosa %>%
+  friedman_test(value~specs | id)
+```
+
+### Hipotez sonuçları:
+  
+  **Friedmann** testinin sonucunda H0 hipotezimiz reddedildi ve değişkenler arası farklılık olduğu görüldü.  
+  Bir sonraki analizimizde ise bu farklılığın nerden geldiğini görmek için **Post-Hoc testlerinden Duncan** testi uygulanacak.  
+
+```{r}
+iris_setosa %>%
+  dunn_test(value~specs, p.adjust.method = "bonferroni")
+```
+
+### Post-Hock test sonuçları:
+  
+  Hipotezlerimiz **Friedmann** testi ile test edildi ve yorum olarak:  
+"%95 güvenle söylenebilir ki kıtalar arası farklılık vardır" yorumu yapıldı.  
+  Çoklu karşılaştırma sorunlarını ortadan kaldırmak için **"Bonferroni"** düzeltmesi ile yaptığımız **Duncann** testinin sonucunda ise:  
+  Petal hacmi ve Sepal uzunluğu     ............ Fark anlamlıdır  
+  Petal hacmi ve Sepal kalınlığı    ............ Fark anlamlıdır  
+  Sepal uzunluğu ve Sepal kalınlığı ............ Fark anlamlıdır  
+
+Çıktılarını kullanarak:
+"Değişkenler arası farklılığın **Petal hacmi'nden (`petal_volume`)** dan kaynaklandığı %95 güven düzeyiyle söylenebilir. "
+
+
+
+
+
+
+## Kaynakça:
+
+-> Datasetinin kaynağı: [Data Camp](datacamp.com)
+-> Verilerin işlenmesinde kullanılan kaynak: RStudio
+  
