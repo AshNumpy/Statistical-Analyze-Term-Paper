@@ -3,7 +3,7 @@
     "path": "~/GitHub/Statistical-Analyze/mid_term/r_cook/9th_part.Rmd",
     "project_path": "9th_part.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "4244085778",
     "contents": "",
     "dirty": false,
     "created": 1638890725873.0,
@@ -13,16 +13,16 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "21,0",
+        "cursorPosition": "23,101",
         "scrollLine": "0",
-        "last_setup_crc32": "3BA73EA9838423a"
+        "last_setup_crc32": "3BA73EA9927d4cb1"
     },
     "folds": "",
-    "lastKnownWriteTime": 1638891575,
+    "lastKnownWriteTime": 1638900370,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1638891575849,
+    "last_content_update": 1638900370363,
     "read_only": false,
     "read_only_alternatives": []
 }

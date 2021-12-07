@@ -1,0 +1,120 @@
+---
+title: "Parametrik Olmayan İstatistiksel Yöntemler Ödevi"
+author: "Ramazan Erduran, İlkay Şafak Baytar"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: default
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(writexl)
+library(pastecs)
+library(plyr)
+library(readxl)
+
+gapminder_tsv <- read_table2("C:/Users/lenovo/Documents/GitHub/Nonpar/1/gapminder.tsv.txt")
+
+gp_eu_x <- read_excel("C:/Users/lenovo/Documents/GitHub/Nonpar/1/gp_eu_x.xlsx")
+View(gp_eu_x)
+
+gp_asia_x <- read_excel("C:/Users/lenovo/Documents/GitHub/Nonpar/1/gp_asia_x.xlsx")
+
+gp_usa_x <- read_excel("C:/Users/lenovo/Documents/GitHub/Nonpar/1/gp_usa_x.xlsx")
+
+```
+
+# 1:
+### Bağımsız veri setine ilişkin inceleme:
+
+  Verilerin çekilirken kaynak olarak [Datacamp](datacamp.com) seçildi.
+İlk olarak veriler `gapminder_tsv` beklenen ömür değişkeni ile filtrelendi `gapminder_lifeExp`.
+
+  Daha sonra bu filtreler üç ülkeye **Europe**, **Americas**, **Asia** bölündü ki daha rahat ve temiz analiz yapabilelim. 
+
+```{r gapminder_filter, echo=TRUE}
+gapminder_lifeExp <- gapminder_tsv %>%
+  filter(continent %in% c("Asia", "Europe", "Americas")) %>%
+  summarize(continent=continent, lifeExp=lifeExp) %>%
+  arrange(desc(continent))
+
+gp_eu <- gapminder_lifeExp %>%
+  filter(continent=="Europe")
+
+gp_usa <- gapminder_lifeExp %>%
+  filter(continent=="Americas")
+
+gp_asia <- gapminder_lifeExp %>%
+  filter(continent=="Asia")
+#Kitle:
+head(gapminder_lifeExp)
+#İncelenecekler:
+head(gp_eu)
+head(gp_asia)
+head(gp_usa)
+
+```
+
+### Örneklem çekme:
+
+  Analize başlamak üzere n=30 için 3 değişkenden de veriler rastgele çekildi ve bu örneklemler:
+  `gp_eu_samp`, `gp_asia_samp`, `gp_usa_samp` olarak adlandırıldı.
+  
+  `as.numeric` kodunu kullandık ki çektiğimiz örneklemler "character" formatında kalmasın ve analizini yapabilelim.
+
+```{r analyze, include=FALSE}
+
+gp_eu_samp <- as.data.frame(list(sample(gp_eu$lifeExp,30,replace=F)))
+colnames(gp_eu_samp) <- c("lifeExp")
+gp_eu_samp$lifeExp <- as.numeric(gp_eu_samp$lifeExp)
+
+gp_asia_samp <- as.data.frame(list(sample(gp_asia$lifeExp,30,replace=F)))
+colnames(gp_asia_samp) <- c("lifeExp")
+gp_asia_samp$lifeExp <- as.numeric(gp_asia_samp$lifeExp)
+
+gp_usa_samp <- as.data.frame(list(sample(gp_usa$lifeExp,30,replace=F)))
+colnames(gp_usa_samp) <- c("lifeExp")
+gp_usa_samp$lifeExp <- as.numeric(gp_usa_samp$lifeExp)
+ 
+```
+
+### Tanımlayıcı istatistikler ve normallik varsayımı testi:
+
+  Özetleyici istatistikler kapsamında incelenecek her bir grup için `stat.desc` kodu kullanıldı.
+  
+  Normallik varsayımında ise:
+H0: Verilerin dağılımı ile normal dağılım arasında fark yoktur.
+H1: Verilerin dağılımı ile normal dağılım arasında fark vardır.
+şeklinde iki hipotez kurulup %95 güven düzeyinde (alpha=0.05) test edildi.
+
+  Test süresince (n=30) < 50 için **Shapiro Wilk** testi kullanıldı. Test sonucunda ise her bir grup için p-value < 0.05 olduğundan mütevellit;
+  "%95 güven düzeyiyle test edilecek grupların dağılımı ile normal dağılım arasında fark vardır" yorumu yapılabilir.
+
+
+```{r normallik_ve_desc, echo=T}
+# Europe'a ait özetleyici istatistikler:
+stat.desc(gp_eu_x$lifeExp)
+#Asia'ya ait özetleyici istatistikler:
+stat.desc(gp_asia_x$lifeExp)
+#Americas'a ait özetleyici istatistikler:
+stat.desc(gp_usa_x$lifeExp)
+
+#Normallik testi:
+shapiro.test(gp_eu_x$lifeExp)
+shapiro.test(gp_asia_x$lifeExp)
+shapiro.test(gp_usa_x$lifeExp)
+
+#   p-value < alpha=0.05 için %95 güven düzeyiyle söylenebilir ki veriler ile normal dağılım arasında fark vardır.
+
+```
+
+
+
+
+
+
+
+

@@ -190,7 +190,21 @@ pre code {
 ## #   AcceptedCmp5 &lt;dbl&gt;, AcceptedCmp1 &lt;dbl&gt;, AcceptedCmp2 &lt;dbl&gt;, Complain &lt;dbl&gt;,
 ## #   Z_CostContact &lt;dbl&gt;, Z_Revenue &lt;dbl&gt;, Response &lt;dbl&gt;</code></pre>
 <pre class="r"><code>set.seed(300) #kodu her çalıştırdığımızda örneklemimizin değişmemesi için kullandığımız bir fonksiyon
-data_sample &lt;- dataset_ex[sample(nrow(dataset_ex),300),replace=F]</code></pre>
+data_sample &lt;- dataset_ex[sample(nrow(dataset_ex),300),replace=F]
+head(data_sample, 3)</code></pre>
+<pre><code>## # A tibble: 3 x 29
+##      ID Year_Birth Education Marital_Status Income Kidhome Teenhome Dt_Customer
+##   &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;           &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;      
+## 1   738       1981 2n Cycle  Single          42395       1        1 04-04-2014 
+## 2 10846       1978 Master    Married         43783       1        0 29-05-2014 
+## 3  9240       1971 PhD       Single          60504       0        1 07-02-2014 
+## # ... with 21 more variables: Recency &lt;dbl&gt;, MntWines &lt;dbl&gt;, MntFruits &lt;dbl&gt;,
+## #   MntMeatProducts &lt;dbl&gt;, MntFishProducts &lt;dbl&gt;, MntSweetProducts &lt;dbl&gt;,
+## #   MntGoldProds &lt;dbl&gt;, NumDealsPurchases &lt;dbl&gt;, NumWebPurchases &lt;dbl&gt;,
+## #   NumCatalogPurchases &lt;dbl&gt;, NumStorePurchases &lt;dbl&gt;,
+## #   NumWebVisitsMonth &lt;dbl&gt;, AcceptedCmp3 &lt;dbl&gt;, AcceptedCmp4 &lt;dbl&gt;,
+## #   AcceptedCmp5 &lt;dbl&gt;, AcceptedCmp1 &lt;dbl&gt;, AcceptedCmp2 &lt;dbl&gt;, Complain &lt;dbl&gt;,
+## #   Z_CostContact &lt;dbl&gt;, Z_Revenue &lt;dbl&gt;, Response &lt;dbl&gt;</code></pre>
 </div>
 <div id="tabulating-factors-and-creating-contingency-tables" class="section level3">
 <h3>9.3 Tabulating Factors and Creating Contingency Tables:</h3>
