@@ -100,4 +100,16 @@ colnames(sample_fruit) <- c("fruit")
 sample_sweet <- as.data.frame(list(data_sample$MntSweetProducts))
 colnames(sample_sweet) <- c("sweet")
 
-pairwise.t.test(sample_fruit$fruit,sample_sweet$sweet, alternative = "two.sided")
+pairwise.t.test(data_sample$MntMeatProducts,data_sample$MntFishProducts, alternative = "two.sided")
+
+
+
+
+
+#9.20 Testing Two Samples for the Same Distribution
+#H0: Dağılımlar aynıdır.
+#Hs: Dağılımlar aynı değildir.
+shapiro.test(data_sample$MntFruits) #normal dağılmıyor
+shapiro.test(data_sample$MntFishProducts) #normal dağılmıyor
+ks.test(data_sample$MntFishProducts,data_sample$MntFruits)
+#p<0.05 için H0 reddedilir. dağılımlar farklıdır.
