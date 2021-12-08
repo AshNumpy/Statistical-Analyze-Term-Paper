@@ -10,7 +10,10 @@ set.seed(300) #kodu her çalıştırdığımızda örneklemimizin değişmemesi 
 data_sample <- dataset_ex[sample(nrow(dataset_ex),300),replace=F]
 head(data_sample, 3)
 
-data_sample$Income[is.na(data_sample$Income)] <- mean(data_sample$Income)
+
+#Çocuk var yok sütunu ekleme:
+
+
 
 
 
@@ -54,10 +57,8 @@ sample_meat <- as.data.frame(list(data_sample$MntMeatProducts))
 colnames(sample_1) <- c("meat")
 sample_fish <- as.data.frame(list(data_sample$MntFishProducts))
 colnames(sample_2) <- c("fish")
-
 shapiro.test(sample_meat$meat)#p<alpha=0.05 için normal dağılmıyor
 shapiro.test(sample_fish$fish)#p<alpha=0.05 için normal dağılmıyor
-
 #H0: balık satışı ile et satışı arasında fark yoktur. 
 #Hs: balık satışı ile et satışı arasında fark vardır.
 wilcox.test(sample_1$meat,sample_2$fish, alternative = "two.sided")
