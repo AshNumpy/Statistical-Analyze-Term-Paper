@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 **`library(dplyr)` (tidyverse)**: Verileri manipüle edebilmek için kullandık.  
 **`library(readr)`**: Verilerimizi içeri aktarmak için kullandık.  
 Örneklemimiz:
-
 ```{r giriş, echo=T}
 library(dplyr)
 library(readr)
@@ -28,14 +27,14 @@ head(data_sample, 3)
 ```
 
 ### Çocuk var/yok sütunu ekleme:
-
+Herhangi bir kütüphane kullanmadan base paketteki **`ìfelse()`** fonksiyonu ile 0'dan fazla çocuğu olanları 1 olmayanları 0 olarak kodlayacak şekilde **`Kid_Status`** değişkenine atadık:
 ```{r cocuk_sutun, echo=T}
-
+data_sample$Kid_Status <- ifelse(data_sample$Kidhome>0, 1, 0)
 ```
+
 
 ### 9.3 Faktörleri Tablolama ve Olasılık Tabloları Oluşturma:
 Bir faktörü tablolamak veya birden fazla faktörden bir olasılık tablosu oluşturmak için kullanılan fonksiyon:
-
 ```{r table, echo=T}
 head(table(data_sample$Income,data_sample$Education))
 ```
@@ -45,7 +44,6 @@ head(table(data_sample$Income,data_sample$Education))
 verilen değişkenlerin bağımsız olup olmadığına ilişkin kullanılan ki kare testi fonksiyonudur.  
 H0: Veriler bağımsızdır.  
 Hs: Veriler bağımsız değildir.  
-
 ```{r summary, echo=T}
 summary(data_sample)
 summary(table(data_sample$MntWines,data_sample$MntFruits))
@@ -55,14 +53,124 @@ p-value < alpha=0.05 için %95 güven düzeyiyle söylenebilir ki veriler bağı
 
 ### 9.5 Çeyreklikleri Hesaplama:
 **``quantile()`** fonksiyonunu değişkenimizin çeyrekliklerini bulmak için kullanıyoruz:  
-
 ```{r quantile, echo=T}
 quantile(data_sample$Income, na.rm=T)
 ```
 
-### 9.9
 
-```{r}
-
+### 9.9 Ortalama için Güven Aralığı Hesaplama:
+**n<30** olabilmesi için 30 örneklem çekip ortalamaya göre güven aralığı bulduk ki t testini uygulayabilelim.  
+Bir diğer etmen olarak ise **"nuemric"** olmayan verileri çıkardık ki hesaplama süresince bize sıkıntı çıkarmasın.  
+  güven aralığı testi yaptık. Bunun sonucunda gelirin ortalamsına ilişkin güven aralığı %95 güven düzeyinde:  
+[1502.769;3058.393] aralığındadır.
+```{r guven_Araligi, echo=T}
+set.seed(30)
+data_sample_30 <- data_sample[sample(nrow(data_sample),30),]
+data_sample_30_dbl <- select(data_sample_30, -c(Education, Marital_Status, Dt_Customer))
+data_sample_30_dbl
+#T testini yapabilmek için 36. satırdaki 3 değişkeni yokettik.
+t.test(data_sample_30_dbl$Income)
 ```
+
+
+### 9.11 Oran Testi:
+Oran testini yapabilmek için önce Hipotezlerimizi kurduk:  
+H0: Q = 50.000  
+Hs: Q > 50.000 {geliri 50.000 den fazla olanları bulmak için kurduğumuz seçenek hipotezi}  
+```{r oran_testi, echo=T}
+prop.test(nrow(data_sample[data_sample$Income>50000,]),300,p=0.5,alternative="greater")
+```
+H0 reddedildi gelirin 50000 fazla olma olasılığı 0.5 ten fazladır.
+
+
+### 9.16 Parametrik Olmayan İki Örneklem Konum Testleri:
+Parametrik olamyan iki örneklem bulmak için önce normallik testi yaptık.  
+Balık ve et satışlarını baz alarak yaptığımız bu testte iki değişkenin de normal dağılmadığı kanısına vardık.  
+Test etmek üzere hipotezlerimizi kurduk:
+**H0: balık satışı ile et satışı arasında fark yoktur.**  
+**Hs: balık satışı ile et satışı arasında fark vardır.**  
+```{r}
+sample_meat <- as.data.frame(list(data_sample$MntMeatProducts))
+colnames(sample_meat) <- c("meat")
+sample_fish <- as.data.frame(list(data_sample$MntFishProducts))
+colnames(sample_fish) <- c("fish")
+shapiro.test(sample_meat$meat) #p<alpha=0.05 için normal dağılmıyor
+shapiro.test(sample_fish$fish) #p<alpha=0.05 için normal dağılmıyor
+wilcox.test(sample_meat$meat,sample_fish$fish, alternative = "two.sided") #p<0.05 için H0 reddedilir.
+```
+Test sonucuna baktığımızda ise;  
+"%95 güven düzeyiyle söylenebilir ki et ve balık satışları arasında fark vardır." yorumu yapılabilir. 
+
+### 9.17 Korelasyon Testi:
+Aralarındaki ilişkiyi test etmek üzere **şarap (`data_sample$MntWines`)** ve **gelir (`data_sample$Income`)** değişkenlerinden örneklemler çektik.  
+Daha sonra korelasyon testine tabii tuttuk.
+```{r}
+sample_wine <- as.data.frame(list(data_sample$MntWines))
+colnames(sample_wine) <- c("wine")
+
+sample_income <- as.data.frame(list(data_sample$Income))
+colnames(sample_income) <- c("income")
+
+cor.test(sample_income$income,sample_wine$wine)
+```
+Sonuç olarak **"Gelir düzeyi ile şarap alımı arasında %76 lık doğrusal bir ilişki vardır."**
+
+
+### 9.18  Gruplar Arası Oran Testi:
+Testimize başlamadan önce hiptoezlerimizi kurduk:  
+H0: Aylık web sitesi ziyaretinin 3'ten fazla olma olasılığı ile aylık dükkan ziyaretinin 5'ten fazla olma olasılığı eşittir.  
+Hs: P~web~ < P~store~  
+```{r}
+prop.test(nrow(data_sample[data_sample$NumWebPurchases>3,]),300,p=0.5)
+prop.test(nrow(data_sample[data_sample$NumStorePurchases>5,]),300,p=0.5)
+```
+
+
+### 9.19 İki Grubun Ortalamalarına ilişkin Karşılaştırma Testi: 
+```{r include=FALSE}
+#H0: M1 = M2
+#Hs: M1 != M2
+sample_fruit <- as.data.frame(list(data_sample$MntFruits))
+colnames(sample_fruit) <- c("fruit")
+sample_sweet <- as.data.frame(list(data_sample$MntSweetProducts))
+colnames(sample_sweet) <- c("sweet")
+
+pairwise.t.test(data_sample$MntMeatProducts,data_sample$MntFishProducts, alternative = "two.sided")
+```
+
+
+### 9.20 Dağılımlara ilişkin Kolmogrov Smirnov Testi:
+Test etmek üzere hipotezlerimizi kurduk:  
+H0: Dağılımlar arasında fark yoktur.  
+Hs: Dağılımlar arasında fark vardır.  
+Hipotezlerimizi kurduktan sonra Normal dağılıp dağılmadığına **`shapiro.test()`** fonksiyonu ile test ettik.  
+Normal dağılmayan verilerimize devamında **`ks.test()`** fonksiyonu ile Kolmogrov testi uyguladık.  
+```{r ks_test, echo=T}
+shapiro.test(data_sample$MntFruits) #normal dağılmıyor
+shapiro.test(data_sample$MntFishProducts) #normal dağılmıyor
+ks.test(data_sample$MntFishProducts,data_sample$MntFruits)
+#p<0.05 için H0 reddedilir. dağılımlar farklıdır.
+```
+Sonuç oalrak ise:  
+"%95 güven düzeyiyle dağılımlar arasında fark olduğu söylenebilir." yorumu yapılabilir.
+
+
+### 10.4 ggplot'a Tema Ekleme:
+Veri görselleştirebilmek için **`library(ggplot2)`** kütüphanesini kullandık.  
+Değişkenleri daha temiz işleyebilmek için **`attach()`** fonksiyonunu kullandık.  
+Dağılım grafiğini çizdiğimiz verilerin isimlerini ise **`labs()`** fonksiyonu ile değiştirdik.  
+Son olarak ise tema ekleme hususunda **`theme_dark()`** temasını kullandık.  
+```{r}
+library(ggplot2)
+attach(data_sample)
+ggplot(data_sample, aes(Education, Income, color=Education)) +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Income change by education level ",
+       x = "Education",
+       y = "Incomes")
+detach(data_sample)
+```
+##### Grafik yorumu:
+
 

@@ -15,9 +15,6 @@ head(data_sample, 3)
 data_sample$Kid_Status <- ifelse(data_sample$Kidhome>0, 1, 0)
   
 
-
-
-
 #9.3 tabulating:
 head(table(data_sample$Income,data_sample$Education))
 #Bir faktörü tablolamak veya birden fazla faktörden bir beklenmedik durum tablosu oluşturmak için kullanılan fonksiyon
@@ -50,6 +47,7 @@ t.test(data_sample_30_dbl)
 # H0: Q = 50.000
 # Hs: Q > 50.000 {geliri 50.000 den fazla olanları bulmak için kurduğumuz seçenek hipotezi}
 prop.test(173,300,p=0.5,alternative="greater") #H0 reddedildi gelirin 50000 fazla olma olasılığı 0.5 ten fazladır.
+prop.test(nrow(data_sample[data_sample$Income>50000,]),300,p=0.5,alternative="greater")
 
 
 
@@ -115,3 +113,23 @@ shapiro.test(data_sample$MntFruits) #normal dağılmıyor
 shapiro.test(data_sample$MntFishProducts) #normal dağılmıyor
 ks.test(data_sample$MntFishProducts,data_sample$MntFruits)
 #p<0.05 için H0 reddedilir. dağılımlar farklıdır.
+
+
+
+# 10.4:
+attach(data_sample)
+ggplot(data_sample, aes(Education, Income, color=Education)) +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Income change by education level ",
+       x = "Education",
+       y = "Incomes")
+detach(data_sample)
+
+
+
+#10.11:
+attach(data_sample)
+ggplot(data_sample, aes(Marital_St,Income)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=min(Income,na.rm=T), ymax=max(Income,na.rm=T)), width=.2) 
