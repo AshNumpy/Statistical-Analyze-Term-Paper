@@ -1,0 +1,68 @@
+---
+title: "Parametrik olmayan istatistiksel yöntemler ödevi (3)"
+author: "Ramazan Erduran, İlkay Şafak Baytar"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Kullanılan Kütüphaneler ve açıklamaları:
+**`library(dplyr)` (tidyverse)**: Verileri manipüle edebilmek için kullandık.  
+**`library(readr)`**: Verilerimizi içeri aktarmak için kullandık.  
+Örneklemimiz:
+
+```{r giriş, echo=T}
+library(dplyr)
+library(readr)
+dataset_ex <- read_delim("~/GitHub/Statistical-Analyze/datasets/dataset_ex.csv", 
+                         delim = "\t", escape_double = FALSE, 
+                         trim_ws = TRUE)
+
+head(dataset_ex, 3) #kitlemiz
+set.seed(300) #kodu her çalıştırdığımızda örneklemimizin değişmemesi için kullandığımız bir fonksiyon
+data_sample <- dataset_ex[sample(nrow(dataset_ex),300),replace=F]
+head(data_sample, 3)
+```
+
+### Çocuk var/yok sütunu ekleme:
+
+```{r cocuk_sutun, echo=T}
+
+```
+
+### 9.3 Faktörleri Tablolama ve Olasılık Tabloları Oluşturma:
+Bir faktörü tablolamak veya birden fazla faktörden bir olasılık tablosu oluşturmak için kullanılan fonksiyon:
+
+```{r table, echo=T}
+head(table(data_sample$Income,data_sample$Education))
+```
+
+
+### 9.4 Kategorik Değişkenlere Bağımsızlık Testi:
+verilen değişkenlerin bağımsız olup olmadığına ilişkin kullanılan ki kare testi fonksiyonudur.  
+H0: Veriler bağımsızdır.  
+Hs: Veriler bağımsız değildir.  
+
+```{r summary, echo=T}
+summary(data_sample)
+summary(table(data_sample$MntWines,data_sample$MntFruits))
+```
+p-value < alpha=0.05 için %95 güven düzeyiyle söylenebilir ki veriler bağımsız değildir.
+
+
+### 9.5 Çeyreklikleri Hesaplama:
+**``quantile()`** fonksiyonunu değişkenimizin çeyrekliklerini bulmak için kullanıyoruz:  
+
+```{r quantile, echo=T}
+quantile(data_sample$Income, na.rm=T)
+```
+
+### 9.9
+
+```{r}
+
+```
+
