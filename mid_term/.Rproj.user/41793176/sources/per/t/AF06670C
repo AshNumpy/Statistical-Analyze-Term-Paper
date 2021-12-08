@@ -3,7 +3,7 @@
     "path": "~/GitHub/Statistical-Analyze/mid_term/9th_part_script.R",
     "project_path": "9th_part_script.R",
     "type": "r_source",
-    "hash": "1017454732",
+    "hash": "1880685255",
     "contents": "",
     "dirty": false,
     "created": 1638962214148.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "189,0",
-        "scrollLine": "162"
+        "cursorPosition": "207,15",
+        "scrollLine": "193"
     },
     "folds": "",
-    "lastKnownWriteTime": 1638983850,
+    "lastKnownWriteTime": 1638990630,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1638983850806,
+    "last_content_update": 1638990630969,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -187,10 +187,51 @@ ggplot(data_sample) +
   geom_boxplot() + theme_bw()
 
 
+#10.20: 
+attach(data_sample)
 
-#10.20: ????
+ggplot() +
+  aes(x = NumWebVisitsMonth) +
+  geom_histogram(aes(y =  ..density..), bins = 21) +
+  geom_density()
+
+detach(data_sample)
+
+#10.21:
+attach(data_sample)
+ggplot(data_sample, aes(sample = log(Income))) +
+  stat_qq() +
+  stat_qq_line()
+
+detach(data_sample)
+
+#10.22:????????
+attach(data_sample)
 
 
+
+detach(data_sample)
+
+#10.24:
+ggplot(data.frame(x = data_sample$NumWebPurchases)) +
+  aes(x) +
+  stat_function(fun = sin)
+
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = dnorm)
+
+f <- function(x) exp(-abs(x)) * sin(2 * pi * x)
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = f)
+
+#10.26:
+
+g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
+  aes(x) +
+  stat_function(fun = sin)
+ggsave("function.png", plot=g1, units = "in", width = 5, height = 4)
 
 
 
