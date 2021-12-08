@@ -1,5 +1,6 @@
 library(dplyr)  #verileri manipüle edebilmek için kullandık
 library(readr)  #verilerimizi çekmek için kullandığımız paket
+library(ggplot2)
 dataset_ex <- read_delim("~/GitHub/Statistical-Analyze/datasets/dataset_ex.csv", 
                          delim = "\t", escape_double = FALSE, 
                          trim_ws = TRUE)
@@ -129,7 +130,68 @@ detach(data_sample)
 
 
 #10.11:
-attach(data_sample)
-ggplot(data_sample, aes(Marital_St,Income)) + 
+ggplot(data_sample, aes(data_sample$Education,data_sample$Income)) + 
   geom_bar(stat="identity") +
-  geom_errorbar(aes(ymin=min(Income,na.rm=T), ymax=max(Income,na.rm=T)), width=.2) 
+  geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
+
+
+
+#10.12:
+ggplot(data_sample, aes(data_sample$Education, data_sample$Income, fill = data_sample$Education)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
+
+
+
+#10.13:
+attach(data_sample)
+ggplot(data_sample, aes(Income, MntMeatProducts)) +
+  geom_line()
+
+
+#10.15:
+dat1<-data_sample %>%
+  summarize(Income=Income, pur=NumStorePurchases)
+dat2 <- data_sample %>%
+  summarize(Income=Income, pur=NumWebPurchases)
+ggplot() +
+  geom_line(data = dat1, aes(dat1$Income, dat1$pur, color="red")) +
+  geom_line(data = dat2, aes(dat1$Income, dat2$pur, color="blue"))
+
+
+
+#10.16:
+ggplot(data_sample, aes(data_sample$Income, data_sample$MntMeatProducts)) + geom_point() + 
+geom_vline(
+  xintercept = mean(data_sample$Income , na.rm=T),
+  color = "red",
+  linetype = "dashed",
+  size = 1.5
+) +
+  geom_hline(yintercept = mean(data_sample$MntMeatProducts, na.rm=T), color = "blue")
+
+
+
+
+#10.17: 
+ggplot(data_sample) +
+aes(y = Income, fill = "red") +
+  geom_boxplot() + theme_dark()
+
+
+
+
+#10.18:
+ggplot(data_sample) +
+  aes(x=Marital_Status, y = Income, color="red") +
+  geom_boxplot() + theme_bw()
+
+
+
+#10.20: ????
+
+
+
+
+
+
