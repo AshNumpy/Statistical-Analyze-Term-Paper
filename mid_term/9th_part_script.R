@@ -12,7 +12,8 @@ head(data_sample, 3)
 
 
 #Çocuk var yok sütunu ekleme:
-
+data_sample$Kid_Status <- ifelse(data_sample$Kidhome>0, 1, 0)
+  
 
 
 
