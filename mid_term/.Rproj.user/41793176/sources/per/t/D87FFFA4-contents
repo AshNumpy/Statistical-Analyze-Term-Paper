@@ -96,14 +96,20 @@ prop.test(143,300,p=0.5)
 #9.19 Performing Pairwise Comparisons Between Group Means
 #H0: M1 = M2
 #Hs: M1 != M2
-sample_fruit <- as.data.frame(list(data_sample$MntFruits))
-colnames(sample_fruit) <- c("fruit")
-sample_sweet <- as.data.frame(list(data_sample$MntSweetProducts))
-colnames(sample_sweet) <- c("sweet")
+#mntet ve mntbalık değerlerini ardarda tek bir sütuna ekleiyp 2. bir sütunda karşılarına ki_status verilerini girmemiz gerekiyor
+#2 sütundan  oluşan bu datayı daha sonra pairwise a sokmamız gerekiyor
 
-pairwise.t.test(data_sample$MntMeatProducts,data_sample$MntFishProducts, alternative = "two.sided")
+values <- rbind(data_sample$MntMeatProducts, data_sample$MntFishProducts)
+values <- as.data.frame(list(values))
+colnames(values) <- c("values")
 
-
+#airquality datasetini incelersek görürüz (örnek)
+attach(airquality)
+Month <- factor(Month, labels = month.abb[5:9])
+pairwise.t.test(Ozone, Month)
+pairwise.t.test(Ozone, Month, p.adjust.method = "bonf")
+pairwise.t.test(Ozone, Month, pool.sd = FALSE)
+detach()
 
 
 
@@ -206,8 +212,15 @@ ggplot(data_sample, aes(sample = log(Income))) +
 detach(data_sample)
 
 #10.22:????????
-attach(data_sample)
+df_t <- as.data.frame(list(data_sample$Recency))
+colnames(df_t) <- c("y")
+est_df <- as.list(df_t$y, "t")
+est_df
 
+ggplot(df_t) +
+  aes(sample = y) +
+  geom_qq(distribution = qt, dparams = est_df) +
+  stat_qq_line(distribution = qt, dparams = est_df)
 
 
 detach(data_sample)
@@ -232,6 +245,8 @@ g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
   aes(x) +
   stat_function(fun = sin)
 ggsave("function.png", plot=g1, units = "in", width = 5, height = 4)
+
+
 
 
 
