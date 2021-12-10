@@ -1,7 +1,6 @@
 ---
 title: "İstatistiksel Analiz Uygulamaları Ara Sınav Ödevi"
-author: Ramazan Erduran, İlkay Şafak Baytar, Talha Kurt, Mert Hasan Kılıç, Müstecep
-  Berca AKBAYIR
+author: "Ramazan Erduran, İlkay Şafak Baytar, Talha Kurt, Mert Hasan Kılıç, Müstecep Berca Akbayır"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   word_document: default
@@ -288,8 +287,35 @@ detach(data_sample)
 ##### Grafik Yorumu:
 Grafiğe baktığımızda söyleyebilirz ki, en fazla yoğunluğa sahip olan gelir aralığı [50.000 - 75.000] arasında dağılmaktadır.
 
-###10.26 Grafiği Bilgisayara Kaydetme:
 
+### 10.24 Bir Fonksiyonun Grafiklendirilmesi:
+**`stat_function`** fonksiyonu ile bir fonksiyonun sürekli eğrisini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **sinüs fonksiyonu** ile web alımının grafiğini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **dnorm fonksiyonu (olasılık dağılımı)** ile çocuk sayısının grafiğini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **f fonksiyonu (exp(-abs(x)) * sin(2 * pi * x))** ile yine çocuk sayısının grafiğini çizdirdik.  
+```{r}
+library(ggplot2)
+ggplot(data.frame(x = data_sample$NumWebPurchases)) +
+  aes(x) +
+  stat_function(fun = sin)
+
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = dnorm)
+
+f <- function(x) exp(-abs(x)) * sin(2 * pi * x)
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = f)
+
+```
+##### Grafik yorumu:
+1. Grafiğimize baktığımızda X değerleri arttıkça, Y değerleri periyodik bir artış ve azalış eğrisine sahip olmaktadır.  
+2. Grafiğimize baktığımızda X değerleri arttıkça, Y değerleri X'e bağlı olarak azalış göstermiştir.  
+3. Grafikte ise X değerleri arttıkça, Y seviyelerindeki artış ve azalışı gösteren eğriler "0" sıfır noktasına yakınsamıştır.  
+
+
+###10.26 Grafiği Bilgisayara Kaydetme:
 Burada ggsave fonksiyonu ile çizdirdiğimiz grafiği png formatında bilgisayarımıza kaydettik.
 ```{r}
 g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
@@ -297,4 +323,3 @@ g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
   stat_function(fun = sin)
 ggsave("function.png", plot=g1, units = "in", width = 5, height = 4)
 ```
-
