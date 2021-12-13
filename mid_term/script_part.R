@@ -94,14 +94,10 @@ prop.test(143,300,p=0.5)
 
 
 #9.19 Performing Pairwise Comparisons Between Group Means
-#H0: M1 = M2
-#Hs: M1 != M2
-#mntet ve mntbalık değerlerini ardarda tek bir sütuna ekleiyp 2. bir sütunda karşılarına ki_status verilerini girmemiz gerekiyor
-#2 sütundan  oluşan bu datayı daha sonra pairwise a sokmamız gerekiyor
+Meat<-as.integer(data_sample$MntMeatProducts)
+kid<-factor(data_sample$Kidhome, levels  = c(0,1,2), labels = c("yok", "tek", "çift"))
+pairwise.t.test(Meat, kid)
 
-values <- rbind(data_sample$MntMeatProducts, data_sample$MntFishProducts)
-values <- as.data.frame(list(values))
-colnames(values) <- c("values")
 
 #airquality datasetini incelersek görürüz (örnek)
 attach(airquality)

@@ -132,9 +132,11 @@ prop.test(nrow(data_sample[data_sample$NumStorePurchases>5,]),300,p=0.5)
 
 
 ### 9.19 İki Grubun Ortalamalarına ilişkin Karşılaştırma Testi: 
-```{r include=FALSE}
-#H0: M1 = M2
-#Hs: M1 != M2
+~Yorumu yapılacak~
+```{r , echo=T}
+Meat<-as.integer(data_sample$MntMeatProducts)
+kid<-factor(data_sample$Kidhome, levels  = c(0,1,2), labels = c("yok", "tek", "çift"))
+pairwise.t.test(Meat, kid)
 ```
 
 
