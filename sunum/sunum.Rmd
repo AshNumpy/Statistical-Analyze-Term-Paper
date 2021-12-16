@@ -33,14 +33,14 @@ head(data_sample, 3)
 
 ### Çocuk var/yok sütunu ekleme:
 Herhangi bir kütüphane kullanmadan base paketteki **`ìfelse()`** fonksiyonu ile çocuğu olan müşterileri 1, olmayanları ise 0 olarak kodlayacak şekilde **`Kid_Status`** değişkenine atadık:
-```{r cocuk_sutun, echo=T}
+```{r echo=TRUE}
 data_sample$Kid_Status <- ifelse(data_sample$Kidhome>0, 1, 0)
 ```
 
 
 ### 9.3 Faktörleri Tablolama ve Olasılık Tabloları Oluşturma:
 Bir faktörü tablolamak veya birden fazla faktörden bir olasılık tablosu oluşturmak için kullanılan fonksiyon:
-```{r table, echo=T}
+```{r echo=TRUE}
 head(table(data_sample$Income,data_sample$Education))
 ```
 
@@ -49,7 +49,7 @@ head(table(data_sample$Income,data_sample$Education))
 Verilen değişkenlerin bağımsız olup olmadığına ilişkin kullanılan ki-kare testi fonksiyonudur.  
 H0: Veriler bağımsızdır.  
 Hs: Veriler bağımsız değildir.  
-```{r summary, echo=T}
+```{r echo=TRUE}
 summary(data_sample)
 summary(table(data_sample$MntWines,data_sample$MntFruits))
 ```
@@ -58,7 +58,7 @@ p-value < alpha=0.05 için %95 güven düzeyinde yokluk hipotezi reddedilir. Ç�
 
 ### 9.5 Çeyreklikleri Hesaplama:
 **``quantile()`** fonksiyonunu değişkenimizin çeyrekliklerini bulmak için kullanılmıştır:  
-```{r quantile, echo=T}
+```{r echo=TRUE}
 quantile(data_sample$Income, na.rm=T)
 ```
 
@@ -94,7 +94,7 @@ Balık ve et satışlarını baz alarak yaptığımız bu testte iki değişkeni
 Test etmek üzere hipotezlerimizi kurduk:
 **H0: balık satışı ile et satışı arasında fark yoktur.**  
 **Hs: balık satışı ile et satışı arasında fark vardır.**  
-```{r, echo=T}
+```{r echo=TRUE}
 sample_meat <- as.data.frame(list(data_sample$MntMeatProducts))
 colnames(sample_meat) <- c("meat")
 sample_fish <- as.data.frame(list(data_sample$MntFishProducts))
@@ -109,7 +109,7 @@ Test sonucuna baktığımızda ise;
 ### 9.17 Korelasyon Testi:
 Aralarındaki ilişkiyi test etmek üzere **şarap (`data_sample$MntWines`)** ve **gelir (`data_sample$Income`)** değişkenlerinden örneklemler çektik.  
 Daha sonra korelasyon testine tabii tuttuk.
-```{r}
+```{r echo=TRUE}
 sample_wine <- as.data.frame(list(data_sample$MntWines))
 colnames(sample_wine) <- c("wine")
 
@@ -125,18 +125,18 @@ Sonuç olarak **"Gelir düzeyi ile şarap alımı arasında %76 lık doğrusal b
 Testimize başlamadan önce hipotezlerimizi kurduk:  
 H0: Aylık web sitesi ziyaretinin 3'ten fazla olma olasılığı ile aylık dükkan ziyaretinin 5'ten fazla olma olasılığı eşittir.  
 Hs: P~web~ < P~store~  
-```{r}
+```{r echo=TRUE}
 prop.test(nrow(data_sample[data_sample$NumWebPurchases>3,]),300,p=0.5)
 prop.test(nrow(data_sample[data_sample$NumStorePurchases>5,]),300,p=0.5)
 ```
 
 
 ### 9.19 İki Grubun Ortalamalarına ilişkin Karşılaştırma Testi: 
-~Yorumu yapılacak~
-```{r , echo=T}
-Meat<-as.integer(data_sample$MntMeatProducts)
+Çocuğu olmayan müşterilerin olduğu kategori, tek ya da iki çocuğu olan müşterilere karşı ürettiği p değerleri alpha=0,05'ten küçüktür. Sonuç olarak iki grup arasında gelir düzeyi bakımından önemli bir fark yoktur.  
+Ayrıca tek çocuklu ve iki çocuklu müşteriler arasında oluşan p değerinin 0,05 olduğu görüldüğünden aralarında gelir düzeyi bakımındanfark vardır diyebiliriz.
+```{r echo=TRUE}
 kid<-factor(data_sample$Kidhome, levels  = c(0,1,2), labels = c("yok", "tek", "çift"))
-pairwise.t.test(Meat, kid)
+pairwise.t.test(data_sample$Income, kid)
 ```
 
 
@@ -161,7 +161,7 @@ Veri görselleştirebilmek için **`library(ggplot2)`** kütüphanesini kulland�
 Değişkenleri daha temiz işleyebilmek için **`attach()`** fonksiyonunu kullandık.  
 Dağılım grafiğini çizdiğimiz verilerin isimlerini ise **`labs()`** fonksiyonu ile değiştirdik.  
 Son olarak ise tema ekleme hususunda **`theme_bw()`** temasını kullandık.  
-```{r}
+```{r echo=TRUE}
 library(ggplot2)
 attach(data_sample)
 ggplot(data_sample, aes(Education, Income, color=Education)) +
@@ -177,8 +177,8 @@ detach(data_sample)
 2ndCycle kısmında ise aralık olarak Graduation kısmına benzese de Graduation kadar yoğunluk elde edememiş, standart sapması diğerlerine göre daha yüksek bir seviyede kalmış.  
 
 
-### 10.11 Bar Grafiğine Güven Aralığı Ekleme:??????????????
-```{r}
+### 10.11 Bar Grafiğine Güven Aralığı Ekleme:????????
+```{r echo=TRUE}
 ggplot(data_sample, aes(data_sample$Education,data_sample$Income)) + 
   geom_bar(stat="identity") +
   geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
@@ -188,7 +188,7 @@ Grafiğe bakıldığında Graduation kategorisindeki mezun müşterilerin gelir 
 
 ### 10.12 Bar Grafiğini Renklendirme:
 Bar grafiğini renklendirdik.
-```{r}
+```{r echo=TRUE}
 ggplot(data_sample, aes(data_sample$Education, data_sample$Income, fill = data_sample$Education)) + 
   geom_bar(stat="identity") +
   geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
@@ -197,7 +197,7 @@ ggplot(data_sample, aes(data_sample$Education, data_sample$Income, fill = data_s
 
 ### 10.13 Çizgi Grafiği Çizme:
 **`ggplot()`** fonksiyonunun sonuna **`geom_line()`** fonksiyonu ile çizgi grafiğini çizdirdik.
-```{r}
+```{r echo=TRUE}
 attach(data_sample)
 ggplot(data_sample, aes(Income, MntMeatProducts)) +
   geom_line()
@@ -213,7 +213,7 @@ Renklendirme olarak ise;
 **Mağazadan alım**: Mavi  
 **İnternetten alım**: Kırmızı  
 olarak belirlenmiştir.
-```{r}
+```{r echo=TRUE}
 library(dplyr)
 dat1<-data_sample %>%
   summarize(Income=Income, pur_store=NumStorePurchases)
@@ -230,7 +230,7 @@ Gelir düzeyi arttıkça her iki türden alımın da arttığı görülmektedir.
 
 ### 10.16 Dikey ve Yatay Çizgiler Ekleme:
 Gelir düzeyindeki ortalamasını gösteren olarak kırmızı kesikli çizgi, et alımının ortalamasını ise mavi yatay düz çizgi olarak belirledik.  
-```{r}
+```{r echo=TRUE}
 ggplot(data_sample, aes(data_sample$Income, data_sample$MntMeatProducts)) + geom_point() + 
 geom_vline(
   xintercept = mean(data_sample$Income , na.rm=T),
@@ -246,7 +246,7 @@ Ortalama gelir düzeyinin altında kalan müşteriler ortalama et alımının al
 
 ### 10.17 Boxplot (Kutu) Grafiği:
 Diğer grafiklerden farklı olara **`geom_boxplot()`** fonksiyonu ile kutu grafiğimizi çizdirdik.
-```{r}
+```{r echo=TRUE}
 ggplot(data_sample) +
 aes(y = Income, fill = "red") +
   geom_boxplot() + theme_dark()
@@ -261,7 +261,7 @@ Grafiğe baktığımızda basıklık konusunda tam olarak yorum yapılamamasına
 
 ### 10.18 Herbir Grup için Boxplot (Kutu) Grafiği:
 Faktör olarak **`Marital_Status`** değişkeni ile müşterilerin medeni durumu kabul edilmiştir. Grafiği çizdirilecek olan ise **`Income`** değişkeni ile gelir düzeyi alınmıştır.
-```{r}
+```{r echo=TRUE}
 ggplot(data_sample) +
   aes(x=Marital_Status, y = Income, color="red") +
   geom_boxplot() + theme_bw()
@@ -276,7 +276,7 @@ Boşanmış müşteri verilerine baktığımızda ise aykırı değerin grafiği
 
 ### 10.20  Histogram Grafiği Çözdürme:
 Histogramını çizdirmek için **`NumWebVisitsMonth`** değişkenini alıp **`geom_histogram()`** fonksiyonu ile çizdirdik.
-```{r}
+```{r echo=TRUE}
 attach(data_sample)
 
 ggplot() +
@@ -290,12 +290,41 @@ detach(data_sample)
 Grafiğe baktığımızda söyleyebilirz ki, en fazla yoğunluğa sahip olan gelir aralığı [50.000 - 75.000] arasında dağılmaktadır.
 
 
+### 10.21 Normal Nicelik - Nicelik Grafiği Oluşturma:
+```{r echo=TRUE}
+attach(data_sample)
+ggplot(data_sample, aes(sample = log(Income))) +
+  stat_qq() +
+  stat_qq_line()
+
+detach(data_sample)
+```
+##### Grafik yorumu:
+Gelir düzeylerinin geneli düz bir doğru etrafında yayılım gösterdiğinden, Gelir düzeylerinin dağılımının normal olduğu sonucuna varılır.  
+Ancak uçlarda yer alan bazı değerlerin doğrudan sapma gösterdiği düşünülerek veri setinin dağılımının aynı değerlerde bir artış ve ağır kuyruklu olduğunu söyleyebiliriz.  
+
+
+### 10.22 Diğer Nicelik - Nicelik Grafiği:
+```{r echo=TRUE}
+library(ggplot2)
+attach(data_sample)
+ggplot(data_sample) +
+  aes(sample = MntFishProducts) +
+  geom_qq(distribution = qt, dparams = mean(MntFishProducts)) +
+  stat_qq_line(distribution = qt, dparams = mean(MntFishProducts))
+detach(data_sample)
+```
+##### Grafik yorumu:
+X>= 1 iken Y değer almaya başlamaktadır.  
+X'deki değişimlerin çok fazla artması Y'deki değişimi belli bir yerden sonra sabitleyecek gibi görünüyor.  
+
+
 ### 10.24 Bir Fonksiyonun Grafiklendirilmesi:
 **`stat_function`** fonksiyonu ile bir fonksiyonun sürekli eğrisini çizdirdik.  
 **`stat_function(fun = sin)`** kısmında **sinüs fonksiyonu** ile web alımının grafiğini çizdirdik.  
 **`stat_function(fun = sin)`** kısmında **dnorm fonksiyonu (olasılık dağılımı)** ile çocuk sayısının grafiğini çizdirdik.  
 **`stat_function(fun = sin)`** kısmında **f fonksiyonu (exp(-abs(x)) * sin(2 * pi * x))** ile yine çocuk sayısının grafiğini çizdirdik.  
-```{r}
+```{r echo=TRUE}
 library(ggplot2)
 ggplot(data.frame(x = data_sample$NumWebPurchases)) +
   aes(x) +
@@ -319,9 +348,16 @@ ggplot(data.frame(x = data_sample$Kidhome)) +
 
 ###10.26 Grafiği Bilgisayara Kaydetme:
 Burada ggsave fonksiyonu ile çizdirdiğimiz grafiği png formatında bilgisayarımıza kaydettik.
-```{r}
+```{r echo=TRUE}
 g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
   aes(x) +
   stat_function(fun = sin)
 ggsave("function.png", plot=g1, units = "in", width = 5, height = 4)
 ```
+  
+  
+# Kaynakça:
+[**Statistics Globe**](https://statisticsglobe.com/)  
+[**R Cookbook**](https://rc2e.com/)  
+[**Statology**](statology.org)  
+[**Datacamp**](https://www.datacamp.com)  
