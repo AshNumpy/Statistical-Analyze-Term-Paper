@@ -1,0 +1,7 @@
+"0","ggplot(data_sample) +
+  aes(sample = MntFishProducts) +
+  geom_qq(distribution = qt, dparams = mean(MntFishProducts)) +
+  stat_qq_line(distribution = qt, dparams = mean(MntFishProducts))
+"
+"2","Error in ggplot(data_sample) : could not find function ""ggplot""
+"

@@ -1,0 +1,363 @@
+---
+title: "İstatistiksel Analiz Uygulamaları Ara Sınav Ödevi"
+author: "Ramazan Erduran, İlkay Şafak Baytar, Talha Kurt, Mert Hasan Kılıç, Müstecep Berca Akbayır"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Kullanılan Kütüphaneler ve açıklamaları:
+**(tidyverse)**: Verileri manipüle edebilmek için kullandık.
+Tidyverse, ortak veri temsillerini ve API tasarımını paylaştıklarından uyum içinde çalışan bir paketler kümesidir. Tidyverse paketi, tidyverse'den çekirdek paketleri tek bir komutla kurmayı ve yüklemeyi kolaylaştırmak için tasarlanmıştır.
+**`library(dplyr)**: dplyr kütüphanesi, tidyverse paket kütüphanesinin içinde bulunan veri manipülasyonu yapılmasını sağlayan kütüphanedir.  
+**`library(readr)`**: 'readr'ın amacı, verileri ('csv', 'tsv' ve 'fwf' gibi) okumak için hızlı ve kolay bir yol sağlamaktır.  
+
+Örneklemimiz:
+```{r giriş, echo=T}
+library(dplyr)
+library(readr)
+dataset_ex <- read_delim("~/GitHub/Statistical-Analyze/datasets/dataset_ex.csv", 
+                         delim = "\t", escape_double = FALSE, 
+                         trim_ws = TRUE)
+
+head(dataset_ex, 3) #kitlemiz
+set.seed(300) #kodu her çalıştırdığımızda örneklemimizin değişmemesi için kullandığımız bir fonksiyon
+data_sample <- dataset_ex[sample(nrow(dataset_ex),300),replace=F]
+head(data_sample, 3)
+```
+
+### Çocuk var/yok sütunu ekleme:
+Herhangi bir kütüphane kullanmadan base paketteki **`ìfelse()`** fonksiyonu ile çocuğu olan müşterileri 1, olmayanları ise 0 olarak kodlayacak şekilde **`Kid_Status`** değişkenine atadık:
+```{r echo=TRUE}
+data_sample$Kid_Status <- ifelse(data_sample$Kidhome>0, 1, 0)
+```
+
+
+### 9.3 Faktörleri Tablolama ve Olasılık Tabloları Oluşturma:
+Bir faktörü tablolamak veya birden fazla faktörden bir olasılık tablosu oluşturmak için kullanılan fonksiyon:
+```{r echo=TRUE}
+head(table(data_sample$Income,data_sample$Education))
+```
+
+
+### 9.4 Kategorik Değişkenlere Bağımsızlık Testi:
+Verilen değişkenlerin bağımsız olup olmadığına ilişkin kullanılan ki-kare testi fonksiyonudur.  
+H0: Veriler bağımsızdır.  
+Hs: Veriler bağımsız değildir.  
+```{r echo=TRUE}
+summary(data_sample)
+summary(table(data_sample$MntWines,data_sample$MntFruits))
+```
+p-value < alpha=0.05 için %95 güven düzeyinde yokluk hipotezi reddedilir. Çıkan sonuca göre veriler bağımsız değildir.
+
+
+### 9.5 Çeyreklikleri Hesaplama:
+**``quantile()`** fonksiyonunu değişkenimizin çeyrekliklerini bulmak için kullanılmıştır:  
+```{r echo=TRUE}
+quantile(data_sample$Income, na.rm=T)
+```
+
+
+### 9.9 Ortalama için Güven Aralığı Hesaplama:
+**n<30** olabilmesi için 30 örneklem çekip ortalamaya göre güven aralığı bulduk ki t testini uygulayabilelim.  
+Bir diğer etmen olarak ise **"numeric"** olmayan verileri çıkardık ki hesaplama süresince bize sıkıntı çıkarmasın.
+```{r guven_Araligi, echo=T}
+set.seed(30)
+data_sample_30 <- data_sample[sample(nrow(data_sample),30),]
+data_sample_30_dbl <- select(data_sample_30, -c(Education, Marital_Status, Dt_Customer))
+data_sample_30_dbl
+#T testini yapabilmek için 36. satırdaki 3 değişkeni yokettik.
+t.test(data_sample_30_dbl$Income)
+```
+ güven aralığı testi yaptık. Bunun sonucunda gelirin ortalamsına ilişkin güven aralığı %95 güven düzeyinde:  
+[1502.769;3058.393] aralığındadır.
+
+
+### 9.11 Oran Testi:
+Oran testini yapabilmek için önce Hipotezlerimizi kurduk:  
+H0: Q = 50.000  
+Hs: Q > 50.000 {geliri 50.000 den fazla olanları bulmak için kurduğumuz seçenek hipotezi}  
+```{r oran_testi, echo=T}
+prop.test(nrow(data_sample[data_sample$Income>50000,]),300,p=0.5,alternative="greater")
+```
+%5 anlamlılık düzeyinde H0 reddedildi. Gelirin 50000 fazla olma olasılığı 0.5'ten fazladır.
+
+
+### 9.16 Parametrik Olmayan İki Örneklem Konum Testleri:
+Parametrik olmayan iki örneklemi bulmak için önce normallik testi yaptık (n>50 için Shapiro-Wilk Testi'ni kullandık).  
+Balık ve et satışlarını baz alarak yaptığımız bu testte iki değişkenin de normal dağılmadığı kanısına vardık.  
+Test etmek üzere hipotezlerimizi kurduk:
+**H0: balık satışı ile et satışı arasında fark yoktur.**  
+**Hs: balık satışı ile et satışı arasında fark vardır.**  
+```{r echo=TRUE}
+sample_meat <- as.data.frame(list(data_sample$MntMeatProducts))
+colnames(sample_meat) <- c("meat")
+sample_fish <- as.data.frame(list(data_sample$MntFishProducts))
+colnames(sample_fish) <- c("fish")
+shapiro.test(sample_meat$meat) #p<alpha=0.05 için normal dağılmıyor
+shapiro.test(sample_fish$fish) #p<alpha=0.05 için normal dağılmıyor
+wilcox.test(sample_meat$meat,sample_fish$fish, alternative = "two.sided") #p<0.05 için H0 reddedilir.
+```
+Test sonucuna baktığımızda ise;  
+"%95 güven düzeyinde söylenebilir ki et ve balık satışları arasında fark vardır." yorumu yapılabilir. 
+
+### 9.17 Korelasyon Testi:
+Aralarındaki ilişkiyi test etmek üzere **şarap (`data_sample$MntWines`)** ve **gelir (`data_sample$Income`)** değişkenlerinden örneklemler çektik.  
+Daha sonra korelasyon testine tabii tuttuk.
+```{r echo=TRUE}
+sample_wine <- as.data.frame(list(data_sample$MntWines))
+colnames(sample_wine) <- c("wine")
+
+sample_income <- as.data.frame(list(data_sample$Income))
+colnames(sample_income) <- c("income")
+
+cor.test(sample_income$income,sample_wine$wine)
+```
+Sonuç olarak **"Gelir düzeyi ile şarap alımı arasında %76 lık doğrusal bir ilişki vardır."**
+
+
+### 9.18  Gruplar Arası Oran Testi:
+Testimize başlamadan önce hipotezlerimizi kurduk:  
+H0: Aylık web sitesi ziyaretinin 3'ten fazla olma olasılığı ile aylık dükkan ziyaretinin 5'ten fazla olma olasılığı eşittir.  
+Hs: P~web~ < P~store~  
+```{r echo=TRUE}
+prop.test(nrow(data_sample[data_sample$NumWebPurchases>3,]),300,p=0.5)
+prop.test(nrow(data_sample[data_sample$NumStorePurchases>5,]),300,p=0.5)
+```
+
+
+### 9.19 İki Grubun Ortalamalarına ilişkin Karşılaştırma Testi: 
+Çocuğu olmayan müşterilerin olduğu kategori, tek ya da iki çocuğu olan müşterilere karşı ürettiği p değerleri alpha=0,05'ten küçüktür. Sonuç olarak iki grup arasında gelir düzeyi bakımından önemli bir fark yoktur.  
+Ayrıca tek çocuklu ve iki çocuklu müşteriler arasında oluşan p değerinin 0,05 olduğu görüldüğünden aralarında gelir düzeyi bakımındanfark vardır diyebiliriz.
+```{r echo=TRUE}
+kid<-factor(data_sample$Kidhome, levels  = c(0,1,2), labels = c("yok", "tek", "çift"))
+pairwise.t.test(data_sample$Income, kid)
+```
+
+
+### 9.20 Dağılımlara ilişkin Kolmogrov Smirnov Testi:
+Test etmek üzere hipotezlerimizi kurduk:  
+H0: Dağılımlar arasında fark yoktur.  
+Hs: Dağılımlar arasında fark vardır.  
+Hipotezlerimizi kurduktan sonra Normal dağılıp dağılmadığına **`shapiro.test()`** fonksiyonu ile test ettik.  
+Normal dağılmayan verilerimize devamında **`ks.test()`** fonksiyonu ile Kolmogrov-Smirnov testi uyguladık.  
+```{r ks_test, echo=T}
+shapiro.test(data_sample$MntFruits) #normal dağılmıyor
+shapiro.test(data_sample$MntFishProducts) #normal dağılmıyor
+ks.test(data_sample$MntFishProducts,data_sample$MntFruits)
+#p<0.05 için H0 reddedilir. dağılımlar farklıdır.
+```
+Sonuç olarak ise:  
+"%95 güven düzeyiyle dağılımlar arasında fark olduğu söylenebilir." yorumu yapılabilir.
+
+
+### 10.4 ggplot'a Tema Ekleme:
+Veri görselleştirebilmek için **`library(ggplot2)`** kütüphanesini kullandık.  
+Değişkenleri daha temiz işleyebilmek için **`attach()`** fonksiyonunu kullandık.  
+Dağılım grafiğini çizdiğimiz verilerin isimlerini ise **`labs()`** fonksiyonu ile değiştirdik.  
+Son olarak ise tema ekleme hususunda **`theme_bw()`** temasını kullandık.  
+```{r echo=TRUE}
+library(ggplot2)
+attach(data_sample)
+ggplot(data_sample, aes(Education, Income, color=Education)) +
+  geom_point() +
+  theme_bw() + 
+  labs(title = "Income change by education level ",
+       x = "Education",
+       y = "Incomes")
+detach(data_sample)
+```
+##### Grafik yorumu:
+"Basic eğitim almış kişiler daha düşük maaşlı işlerde çalışırken, Graduation, Master ve PhD eğitimi almış kişiler daha yüksek maaşlı işlerde çalışmış" yorumunu yaptık.  
+2ndCycle kısmında ise aralık olarak Graduation kısmına benzese de Graduation kadar yoğunluk elde edememiş, standart sapması diğerlerine göre daha yüksek bir seviyede kalmış.  
+
+
+### 10.11 Bar Grafiğine Güven Aralığı Ekleme:????????
+```{r echo=TRUE}
+ggplot(data_sample, aes(data_sample$Education,data_sample$Income)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
+```
+Grafiğe bakıldığında Graduation kategorisindeki mezun müşterilerin gelir düzeyi olarak diğer kategorilere kıyasla daha yüksek maaş aldıkları görülmüştür. Basic kategorisindeki müşteriler, yıllık maaşı 250000'den az olduğu görülmüştür. Böylece en az maaş alan kategori Basic olmuştur. 
+
+
+### 10.12 Bar Grafiğini Renklendirme:
+Bar grafiğini renklendirdik.
+```{r echo=TRUE}
+ggplot(data_sample, aes(data_sample$Education, data_sample$Income, fill = data_sample$Education)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=min(data_sample$Income,na.rm=T), ymax=max(data_sample$Income,na.rm=T)), width=.2)
+```
+
+
+### 10.13 Çizgi Grafiği Çizme:
+**`ggplot()`** fonksiyonunun sonuna **`geom_line()`** fonksiyonu ile çizgi grafiğini çizdirdik.
+```{r echo=TRUE}
+attach(data_sample)
+ggplot(data_sample, aes(Income, MntMeatProducts)) +
+  geom_line()
+detach(data_sample)
+```
+##### Grafik yorumu:
+Gelir düzeyi arttıkça müşterilerin et alımı artış eğilimi göstermektedir. 
+
+
+### 10.15 İkili Çizgi Grafiği Çizme:
+Müşterilerin ürünleri mağazadan alması ile internet sitesi üzerinden alması kıyaslanmıştır.  
+Renklendirme olarak ise;  
+**Mağazadan alım**: Mavi  
+**İnternetten alım**: Kırmızı  
+olarak belirlenmiştir.
+```{r echo=TRUE}
+library(dplyr)
+dat1<-data_sample %>%
+  summarize(Income=Income, pur_store=NumStorePurchases)
+dat2 <- data_sample %>%
+  summarize(Income=Income, pur_web=NumWebPurchases)
+ggplot() +
+  geom_line(data = dat1, aes(dat1$Income, dat1$pur_store, color="red")) +
+  geom_line(data = dat2, aes(dat1$Income, dat2$pur_web, color="blue"))
+
+```
+##### Grafik yorumu:
+Gelir düzeyi arttıkça her iki türden alımın da arttığı görülmektedir. Bunun yanında Mağazadan alım internetten alıma kıyasla tüm gelir düzeylerinde fazla olmuştur.  
+
+
+### 10.16 Dikey ve Yatay Çizgiler Ekleme:
+Gelir düzeyindeki ortalamasını gösteren olarak kırmızı kesikli çizgi, et alımının ortalamasını ise mavi yatay düz çizgi olarak belirledik.  
+```{r echo=TRUE}
+ggplot(data_sample, aes(data_sample$Income, data_sample$MntMeatProducts)) + geom_point() + 
+geom_vline(
+  xintercept = mean(data_sample$Income , na.rm=T),
+  color = "red",
+  linetype = "dashed",
+  size = 1.5
+) +
+  geom_hline(yintercept = mean(data_sample$MntMeatProducts, na.rm=T), color = "blue")
+```
+##### Grafik yorumu:
+Ortalama gelir düzeyinin altında kalan müşteriler ortalama et alımının altında kalmıştır.  
+
+
+### 10.17 Boxplot (Kutu) Grafiği:
+Diğer grafiklerden farklı olara **`geom_boxplot()`** fonksiyonu ile kutu grafiğimizi çizdirdik.
+```{r echo=TRUE}
+ggplot(data_sample) +
+aes(y = Income, fill = "red") +
+  geom_boxplot() + theme_dark()
+```
+##### Grafik yorumu:
+1. çeyreklik değeri ~ 37.500  
+3. çeyreklik değeri ~ 70.000
+Medyan değeri ~ 55.000
+Çarpıklık konusunda pozitif (sola) çarpıktır. Aykırı değer gözlemlenmemiştir.  
+Grafiğe baktığımızda basıklık konusunda tam olarak yorum yapılamamasına karşın ilk intiba olarak basıklık değerinin düşük olduğu verilerin çoğunu kapsamadığı düşüncesiyle söylenebilir.  
+
+
+### 10.18 Herbir Grup için Boxplot (Kutu) Grafiği:
+Faktör olarak **`Marital_Status`** değişkeni ile müşterilerin medeni durumu kabul edilmiştir. Grafiği çizdirilecek olan ise **`Income`** değişkeni ile gelir düzeyi alınmıştır.
+```{r echo=TRUE}
+ggplot(data_sample) +
+  aes(x=Marital_Status, y = Income, color="red") +
+  geom_boxplot() + theme_bw()
+
+```
+##### Grafik yorumu:
+Maksimum gelir düzeyine sahip grubun evliler olduğu gözlemlenmiştir. Minimum gelir düzeyine sahip grubun da yine evliler olduğu görülmüştür. 
+Müşterilerin geneline baktığımızda yalnız müşteri genişliğinin çok az olduğunu, boxplot grafiğinin diğerleri arasında çok küçük kalmış olduğundan çıkarabiliriz.  
+Yalnızlar hayata dair umutlarını kaybetmiş olup boxplot bile onları adamdan saymamıştır.  
+Boşanmış müşteri verilerine baktığımızda ise aykırı değerin grafiğimizde mevcut olduğu söylenebilir.  
+
+
+### 10.20  Histogram Grafiği Çözdürme:
+Histogramını çizdirmek için **`NumWebVisitsMonth`** değişkenini alıp **`geom_histogram()`** fonksiyonu ile çizdirdik.
+```{r echo=TRUE}
+attach(data_sample)
+
+ggplot() +
+  aes(x = Income) +
+  geom_histogram(aes(y =  ..density..), bins = 21) +
+  geom_density()
+
+detach(data_sample)
+```
+##### Grafik Yorumu:
+Grafiğe baktığımızda söyleyebilirz ki, en fazla yoğunluğa sahip olan gelir aralığı [50.000 - 75.000] arasında dağılmaktadır.
+
+
+### 10.21 Normal Nicelik - Nicelik Grafiği Oluşturma:
+```{r echo=TRUE}
+attach(data_sample)
+ggplot(data_sample, aes(sample = log(Income))) +
+  stat_qq() +
+  stat_qq_line()
+
+detach(data_sample)
+```
+##### Grafik yorumu:
+Gelir düzeylerinin geneli düz bir doğru etrafında yayılım gösterdiğinden, Gelir düzeylerinin dağılımının normal olduğu sonucuna varılır.  
+Ancak uçlarda yer alan bazı değerlerin doğrudan sapma gösterdiği düşünülerek veri setinin dağılımının aynı değerlerde bir artış ve ağır kuyruklu olduğunu söyleyebiliriz.  
+
+
+### 10.22 Diğer Nicelik - Nicelik Grafiği:
+```{r echo=TRUE}
+library(ggplot2)
+attach(data_sample)
+ggplot(data_sample) +
+  aes(sample = MntFishProducts) +
+  geom_qq(distribution = qt, dparams = mean(MntFishProducts)) +
+  stat_qq_line(distribution = qt, dparams = mean(MntFishProducts))
+detach(data_sample)
+```
+##### Grafik yorumu:
+X>= 1 iken Y değer almaya başlamaktadır.  
+X'deki değişimlerin çok fazla artması Y'deki değişimi belli bir yerden sonra sabitleyecek gibi görünüyor.  
+
+
+### 10.24 Bir Fonksiyonun Grafiklendirilmesi:
+**`stat_function`** fonksiyonu ile bir fonksiyonun sürekli eğrisini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **sinüs fonksiyonu** ile web alımının grafiğini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **dnorm fonksiyonu (olasılık dağılımı)** ile çocuk sayısının grafiğini çizdirdik.  
+**`stat_function(fun = sin)`** kısmında **f fonksiyonu (exp(-abs(x)) * sin(2 * pi * x))** ile yine çocuk sayısının grafiğini çizdirdik.  
+```{r echo=TRUE}
+library(ggplot2)
+ggplot(data.frame(x = data_sample$NumWebPurchases)) +
+  aes(x) +
+  stat_function(fun = sin)
+
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = dnorm)
+
+f <- function(x) exp(-abs(x)) * sin(2 * pi * x)
+ggplot(data.frame(x = data_sample$Kidhome)) +
+  aes(x) +
+  stat_function(fun = f)
+
+```
+##### Grafik yorumu:
+1. Grafiğimize baktığımızda X değerleri arttıkça, Y değerleri periyodik bir artış ve azalış eğrisine sahip olmaktadır.  
+2. Grafiğimize baktığımızda X değerleri arttıkça, Y değerleri X'e bağlı olarak azalış göstermiştir.  
+3. Grafikte ise X değerleri arttıkça, Y seviyelerindeki artış ve azalışı gösteren eğriler "0" sıfır noktasına yakınsamıştır.  
+
+
+###10.26 Grafiği Bilgisayara Kaydetme:
+Burada ggsave fonksiyonu ile çizdirdiğimiz grafiği png formatında bilgisayarımıza kaydettik.
+```{r echo=TRUE}
+g1<-ggplot(data.frame(x = data_sample$NumWebPurchases)) +
+  aes(x) +
+  stat_function(fun = sin)
+ggsave("function.png", plot=g1, units = "in", width = 5, height = 4)
+```
+  
+  
+# Kaynakça:
+[**Statistics Globe**](https://statisticsglobe.com/)  
+[**R Cookbook**](https://rc2e.com/)  
+[**Statology**](statology.org)  
+[**Datacamp**](https://www.datacamp.com)  
